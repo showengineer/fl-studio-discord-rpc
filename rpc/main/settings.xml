@@ -1,0 +1,21 @@
+﻿<?xml version="1.0" encoding="utf-8" ?>
+<config>
+  <AppConfig>
+    <!-- DO NOT CHANGE THESE SETTINGS UNLESS YOU KNOW WHAT YOU ARE DOING! -->
+    <ClientID>476022809429147648</ClientID>
+    <Pipe>-1</Pipe>
+  </AppConfig>
+  <UserConfig>
+    <!--These are the settings that you can change without bricking the app-->
+    <SecretProject>false</SecretProject>
+    
+    <!-- Put your message here when secret mode is on-->
+    <SecretMessage>Working on a very secret project!</SecretMessage>
+    <!--Debug levels:
+        0: Everything (errors, warnings, info)
+        1: Warnings and errors only
+        2: Errors only
+        3: Nothing!-->
+    <DebugLevel>0</DebugLevel>
+  </UserConfig>
+</config>
