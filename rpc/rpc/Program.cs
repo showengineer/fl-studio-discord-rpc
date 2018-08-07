@@ -1,6 +1,5 @@
 ﻿/*  This is the laucher
  *  Not very special huh?
- *  
  */ 
 
 using System;
@@ -13,16 +12,17 @@ namespace rpc
         static void Main(string[] args)
         {
             Console.WriteLine("Running...");
-            FL_RPC.Init();
-            //try
-            //{
-            //    FL_RPC.Init();
-            //}
-            //catch(Exception e)
-            //{
-            //    Console.WriteLine("ERROR: " + e.Message);
-            //   Environment.Exit(-1);
-            //}
+            try
+            {
+                FL_RPC.Init();
+            }
+            catch(Exception e)
+            {
+                Console.WriteLine("\n \nERROR: " + e.Message);
+                Console.WriteLine("INFO: Exception Name: " + e.GetType());
+                Console.WriteLine("\n Exiting...");
+                Environment.Exit(-1);
+            }
         }
     }
 }

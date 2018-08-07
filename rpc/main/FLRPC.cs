@@ -26,17 +26,15 @@ namespace FLRPC
                 LargeImageText = "FL-RPC",
             }
         };
-        private static LogLevel logLevel = 0;
+        private static LogLevel logLevel = LogLevel.None;
         private static DiscordRpcClient client;
         private static XmlSettings settings;
         #endregion
 
         #region Public methods
         /// <summary>
-        /// Initalizes an RPCclient instance
+        /// Initalizes an RPC client instance and starts it
         /// </summary>
-        /// <param name="ClientID">Discord's API ClientID</param>
-        /// <param name="DPipe">The Discord Pipe</param>
         public static void Init()
         {
             settings = ReadSettings();
@@ -83,11 +81,21 @@ namespace FLRPC
                     client.Invoke();
                 // Get info
                 FLInfo InitInfo = GetFLInfo();
-                if (InitInfo.appName == null)
-                    rp.Details = "Looking at a empty project!";
-                else
+                if(InitInfo.appName == null && InitInfo.projectName == null)
+                {
+                    throw new Exceptions.ProcessNotPresentException("FL Studio doens't seem to be active, start FL Studio first!");
+                }
+                if (InitInfo.projectName == null)
+                {
+                    rp.State = "Looking at a empty project!";
                     rp.Details = InitInfo.appName;
-                rp.State = InitInfo.projectName;
+                }
+
+                else
+                {
+                    rp.Details = InitInfo.appName;
+                    rp.State = InitInfo.projectName;
+                }
                 settings.Secret = secret;
                 if (secret)
                 {
@@ -125,7 +133,7 @@ namespace FLRPC
 
                 //This can be what ever value you want, as long as it is faster than 30 seconds.
                 //Console.Write("+");
-                Thread.Sleep(1000);
+                Thread.Sleep(5000);
                 
                 client.SetPresence(rp);
             }
@@ -187,7 +195,12 @@ namespace FLRPC
             // Check if project is new/unsaved
                 //if yes, return null
                 //if not, return name
-            if (!fullTitle.Contains("-"))
+            if(fullTitle == null)
+            {
+                i.projectName = null;
+                i.appName = null;
+            }
+            else if (!fullTitle.Contains("-"))
             {
                 i.projectName = null;
                 i.appName = fullTitle;
@@ -247,7 +260,7 @@ namespace FLRPC
         {
             //This is called when the Rich Presence has been updated in the discord client.
             // Use this to keep track of the rich presence and validate that it has been sent correctly.
-            Console.WriteLine("Rich Presence Updated. Playing {0}", args.Presence == null ? "Nothing (NULL)" : args.Presence.State);
+           
         }
         #endregion
     }
