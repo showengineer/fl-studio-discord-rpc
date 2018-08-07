@@ -43,6 +43,7 @@ namespace FLRPC
             using(client = new DiscordRpcClient(ClientID, false, DPipe))
             {
                 //Set log levels
+                logLevel = settings.logLevel;
                 client.Logger = new ConsoleLogger() { Level = logLevel, Coloured = true };
 
                 //Event registration
@@ -69,7 +70,8 @@ namespace FLRPC
                 Start();
             }
         }
-        public static bool secret;
+        public static bool Csecret;
+        public static bool Psecret;
         public static void Start()
         {
             Active = true;
@@ -77,30 +79,9 @@ namespace FLRPC
 
             while (client != null && Active)
             {
-                if (client != null)
-                    client.Invoke();
                 // Get info
                 FLInfo InitInfo = GetFLInfo();
-                if(InitInfo.appName == null && InitInfo.projectName == null)
-                {
-                    throw new Exceptions.ProcessNotPresentException("FL Studio doens't seem to be active, start FL Studio first!");
-                }
-                if (InitInfo.projectName == null)
-                {
-                    rp.State = "Looking at a empty project!";
-                    rp.Details = InitInfo.appName;
-                }
 
-                else
-                {
-                    rp.Details = InitInfo.appName;
-                    rp.State = InitInfo.projectName;
-                }
-                settings.Secret = secret;
-                if (secret)
-                {
-                    rp.State = settings.SecretMessage;
-                } 
                 // Try to read any keys if available
                 if (Console.KeyAvailable)
                 {
@@ -110,35 +91,69 @@ namespace FLRPC
                             Console.WriteLine("Commands: \n s: turn on secret mode \n q: Quit \n h: help \n Other settings can be changed in the settings.xml file");
                             break;
                         case ConsoleKey.S:
-                            if (secret)
+                            if (Csecret)
                             {
-                                secret = false;
+                                Csecret = false;
                                 Console.WriteLine("\n Secret Mode turned off!");
                                 rp.State = InitInfo.projectName;
                             }
-                            else if (!secret)
+                            else if (!Csecret)
                             {
-                                secret = true;
+                                Csecret = true;
                                 Console.WriteLine("\n Secret Mode turned on!");
                                 rp.State = settings.SecretMessage;
                             }
-                            
+
                             break;
                         case ConsoleKey.Q:
-                            Stop(client);
+                            Stop();
                             break;
 
                     }
                 }
 
-                //This can be what ever value you want, as long as it is faster than 30 seconds.
-                //Console.Write("+");
-                Thread.Sleep(5000);
+
+                if (client != null)
+                    client.Invoke();
                 
+
+                //Skip update if nothing changes
+                if (InitInfo.appName == rp.Details && InitInfo.projectName == rp.State && Csecret == Psecret)
+                    continue;
+                if (InitInfo.projectName == null && rp.State == settings.NoNameMessage && Csecret == Psecret)
+                    continue;
+
+                //Check if FL Studio is active
+                if (InitInfo.appName == null && InitInfo.projectName == null)
+                {
+                    throw new Exceptions.ProcessNotPresentException("FL Studio doens't seem to be active, start FL Studio first!");
+                }
+
+                //Fill State and details
+                if (InitInfo.projectName == null)
+                {
+                    rp.State = settings.NoNameMessage;
+                    rp.Details = InitInfo.appName;
+                }
+
+                else
+                {
+                    rp.Details = InitInfo.appName;
+                    rp.State = InitInfo.projectName;
+                }
+                settings.Secret = Csecret;
+                if (Csecret)
+                {
+                    rp.State = settings.SecretMessage;
+                }
+                Psecret = Csecret;
                 client.SetPresence(rp);
+                Thread.Sleep(settings.RefeshInterval);
+                
+                
             }
         }
-        public static void Stop(DiscordRpcClient client)
+        public static void Stop()
         {
             client.Dispose();
             Console.WriteLine("Services stopped, terminating...");
@@ -161,6 +176,8 @@ namespace FLRPC
             string Secret = XMLParser.FindByTag("SecretProject", d)[0];
             string DebugLevel = XMLParser.FindByTag("DebugLevel", d)[0];
             string SecretMessage = XMLParser.FindByTag("SecretMessage", d)[0];
+            string NoNameMessage = XMLParser.FindByTag("NoNameMessage", d)[0];
+            string interval = XMLParser.FindByTag("RefreshInterval", d)[0];
 
             // Convert, store and return
             XmlSettings setting = new XmlSettings();
@@ -168,6 +185,8 @@ namespace FLRPC
             setting.Pipe = Convert.ToInt32(Pipe);
             setting.Secret = Convert.ToBoolean(Secret);
             setting.SecretMessage = SecretMessage;
+            setting.NoNameMessage = NoNameMessage;
+            setting.RefeshInterval = Convert.ToInt32(interval);
             switch (Convert.ToInt32(DebugLevel))
             {
                 case 0:
@@ -260,7 +279,7 @@ namespace FLRPC
         {
             //This is called when the Rich Presence has been updated in the discord client.
             // Use this to keep track of the rich presence and validate that it has been sent correctly.
-           
+            Console.WriteLine("Changes detected, Presence updated");
         }
         #endregion
     }

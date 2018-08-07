@@ -9,13 +9,19 @@
     <!--These are the settings that you can change without bricking the app-->
     <SecretProject>false</SecretProject>
     
-    <!-- Put your message here when secret mode is on-->
+    <!-- Put your message here for secret mode -->
     <SecretMessage>Working on a very secret project!</SecretMessage>
+    
+    <!-- Put your message here in the case you are just starting out-->
+    <NoNameMessage>Looking at an empty project!</NoNameMessage>
     <!--Debug levels:
         0: Everything (errors, warnings, info)
         1: Warnings and errors only
         2: Errors only
         3: Nothing!-->
     <DebugLevel>0</DebugLevel>
+    
+    <!-- Interval is in miliseconds -->
+    <RefreshInterval>5000</RefreshInterval>
   </UserConfig>
 </config>

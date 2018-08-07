@@ -20,7 +20,8 @@ namespace rpc
             {
                 Console.WriteLine("\n \nERROR: " + e.Message);
                 Console.WriteLine("INFO: Exception Name: " + e.GetType());
-                Console.WriteLine("\n Exiting...");
+                Console.WriteLine("\n");
+                FL_RPC.Stop();
                 Environment.Exit(-1);
             }
         }

@@ -54,5 +54,7 @@ namespace FLRPC.Helpers
         public int Pipe { get; set; }
         public bool Secret { get; set; }
         public string SecretMessage { get; set; }
+        public string NoNameMessage { get; set; }
+        public int RefeshInterval { get; set; }
     }
 }
