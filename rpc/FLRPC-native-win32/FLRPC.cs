@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Text;
 using System.Threading;
 using DiscordRPC;
 using DiscordRPC.Message;
@@ -157,7 +156,7 @@ namespace FLRPC
         {
             client.Dispose();
             Console.WriteLine("Services stopped, terminating...");
-            Thread.Sleep(750);
+            Thread.Sleep(2000);
             Environment.Exit(0);
         }
         #endregion
@@ -204,7 +203,7 @@ namespace FLRPC
             }
             return setting;
         }
-
+        public static int tryCount = 3;
         public static FLInfo GetFLInfo()
         {
             FLInfo i = new FLInfo();
@@ -216,6 +215,12 @@ namespace FLRPC
                 //if not, return name
             if(fullTitle == null)
             {
+                if(tryCount > 0)
+                {
+                    tryCount--;
+                    Thread.Sleep(1000);
+                    GetFLInfo();
+                }
                 i.projectName = null;
                 i.appName = null;
             }
