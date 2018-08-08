@@ -1,11 +1,11 @@
 ﻿/*  This is the laucher
  *  Not very special huh?
- */ 
+ */
 
 using System;
 using FLRPC;
-using DiscordRPC;
-namespace rpc
+
+namespace rpc_win32
 {
     class Program
     {
@@ -16,7 +16,7 @@ namespace rpc
             {
                 FL_RPC.Init();
             }
-            catch(Exception e)
+            catch (Exception e)
             {
                 Console.WriteLine("\n \nERROR: " + e.Message);
                 Console.WriteLine("INFO: Exception Name: " + e.GetType());
