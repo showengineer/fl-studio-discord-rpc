@@ -154,9 +154,14 @@ namespace FLRPC
         }
         public static void Stop()
         {
+            // Proper disposal of the thread
             client.Dispose();
             Console.WriteLine("Services stopped, terminating...");
+
+            // Make it readable
             Thread.Sleep(2000);
+
+            // Properly exit
             Environment.Exit(0);
         }
         #endregion
@@ -290,3 +295,6 @@ namespace FLRPC
     }
     
 }
+
+
+// 300 lines of code!
