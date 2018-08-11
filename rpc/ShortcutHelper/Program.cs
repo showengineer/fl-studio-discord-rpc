@@ -1,8 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using System.IO;
 using Microsoft.Win32;
 using IWshRuntimeLibrary;
@@ -27,7 +23,7 @@ namespace ShortcutHelper
                 }
                 if (!go)
                 {
-                    Console.WriteLine("Operation cancelled");
+                    Console.WriteLine("\nOperation cancelled");
                     System.Threading.Thread.Sleep(2000);
                     Environment.Exit(-1);
                 }
@@ -49,6 +45,7 @@ namespace ShortcutHelper
         static bool ReplaceDesktop;
         static string[] WriteShortcuts = null;
         static string FLStudioPaths;
+        static string VersionNumber;
         static void GetInfo()
         {
             Console.WriteLine("Would you like to replace your current shortcuts on your desktop? (Y/N)");
@@ -64,19 +61,58 @@ namespace ShortcutHelper
                     ReplaceDesktop = false;
                     break;
             }
-            Console.Write("\n Where would you like to write (additonal) shortcuts? Write the full path to the folder, seperate folder paths with a comma (,):");
+            Console.Write("\n Where would you like to write (additonal) shortcuts? Write the full path to the folder, seperate folder paths with a comma (,): ");
             string feed = Console.ReadLine();
             if (feed != null)
             {
                 WriteShortcuts = feed.Split(',');
             }
+
+            Console.Write("\n Enter the version number of FL Studio (e.g 20): ");
+            VersionNumber = Console.ReadLine();
             Console.WriteLine("Thank you! \n \n");
         }
         static void GetFLPaths()
         {
             string path = (string)Registry.GetValue("HKEY_LOCAL_MACHINE\\SOFTWARE\\Image-Line\\Shared\\Paths", "FL Studio", null);
-            FLStudioPaths = path;
-            Console.WriteLine(string.Format("Found FL Studio at path: {0}", path));
+            if(path == null)
+            {
+                Console.WriteLine("No FL Studio path detected!\n\n");
+                Console.Write("Please enter full path to the FL Studio executable: ");
+                string output = Console.ReadLine();
+                System.Diagnostics.FileVersionInfo FLInf = System.Diagnostics.FileVersionInfo.GetVersionInfo(output);
+                if (FLInf.ProductName != "FL Studio")
+                {
+                    Console.WriteLine("\n   This file doesn't appear to be a FL Studio executable...try again!");
+                    GetFLPaths();
+                }
+                FLStudioPaths = output;
+            }
+            else
+            {
+                FLStudioPaths = path;
+                Console.WriteLine(string.Format("Found FL Studio at path: {0}", path));
+                Console.WriteLine("Correct? (Y/N)");
+                switch (Console.ReadKey().Key)
+                {
+                    case ConsoleKey.Y:
+                        break;
+                    case ConsoleKey.N:
+                        Console.Write("Please enter full path to the FL Studio executable: ");
+                        string output = Console.ReadLine();
+                        output.Replace("\"", string.Empty);
+                        System.Diagnostics.FileVersionInfo FLInf = System.Diagnostics.FileVersionInfo.GetVersionInfo(output);
+                        if (FLInf.ProductName != "FL Studio")
+                        {
+                            Console.WriteLine("\n   This file doesn't appear to be a FL Studio executable...try again!");
+                            System.Threading.Thread.Sleep(1000);
+                            GetFLPaths();
+                        }
+                        FLStudioPaths = output;
+                        break;
+                }
+            }
+            
         }
         static bool Review()
         {
@@ -84,7 +120,7 @@ namespace ShortcutHelper
             Console.WriteLine("-------------------------------------------------------------------------------");
             Console.WriteLine("Shortcuts:");
             Console.WriteLine(string.Format("   Replace desktop shortcuts: {0} \n", ReplaceDesktop.ToString()));
-            if(WriteShortcuts == null)
+            if (WriteShortcuts[0] == "")
             {
                 Console.WriteLine(string.Format("   Don't write additional shortcuts"));
             }
@@ -99,7 +135,10 @@ namespace ShortcutHelper
             }
             Console.WriteLine("-------------------------------------------------------------------------------");
             Console.WriteLine("FL Studio versions:\n");
-            Console.WriteLine(string.Format("   Detected path: {0} \n", FLStudioPaths));
+            Console.WriteLine(string.Format("   Path: {0}", FLStudioPaths));
+            if(VersionNumber == ""){ Console.WriteLine("    No version specified\n"); }
+            else
+            { Console.WriteLine(string.Format("   Version: {0}\n", VersionNumber)); }
             Console.WriteLine("-------------------------------------------------------------------------------\n");
             Console.WriteLine("Are these settings OK? (Y/N)");
             switch (Console.ReadKey().Key)
@@ -123,14 +162,14 @@ namespace ShortcutHelper
             CreateBatch(FLStudioPaths, batchpath);
                 if (ReplaceDesktop)
                 {
-                CreateShortcut("FL Studio", Environment.GetFolderPath(Environment.SpecialFolder.Desktop), batchpath, IconPath());
+                CreateShortcut(string.Format("FL Studio {0}", VersionNumber), Environment.GetFolderPath(Environment.SpecialFolder.Desktop), batchpath, IconPath());
                 }
-                if (WriteShortcuts != null)
+                if (WriteShortcuts[0] != "")
                 {
                     foreach (string p in WriteShortcuts)
                     {
                         string realP = p.Replace(@"""", string.Empty);
-                        CreateShortcut("FL Studio", realP , batchpath, IconPath());
+                        CreateShortcut(string.Format("FL Studio {0}", VersionNumber), realP , batchpath, IconPath());
                     }
                 }
             Console.WriteLine("\n\n Done, Thank you!");
@@ -148,7 +187,7 @@ namespace ShortcutHelper
         }
         public static void CreateBatch(string pathToFL, string outputPath)
         {
-            string[] lines = new string[] { "@echo off", "ECHO Lauching FL Studio", string.Empty, "REM Change this if FL Studio was installed elsewhere", @"start """" " + string.Format(@"""{0}""", pathToFL), string.Empty, "ECHO FL Studio launched", "ECHO.", "ECHO Cancel if RPC shouldn't be enabled", "TIMEOUT /T 10 /NOBREAK", "rpc-win32" };
+            string[] lines = new string[] { "@echo off", "TITLE FL Studio Laucher" , "ECHO Lauching FL Studio", string.Empty, "REM Change this if FL Studio was installed elsewhere", @"start """" " + string.Format(@"""{0}""", pathToFL), string.Empty, "ECHO FL Studio launched", "ECHO.", "ECHO Cancel if RPC shouldn't be enabled", "TIMEOUT /T 10 /NOBREAK", string.Format("start /min {0}", Path.Combine(FolderExe, "rpc-win32.exe")) };
             System.IO.File.WriteAllLines(outputPath, lines);
         }
     }
