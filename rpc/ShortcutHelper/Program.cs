@@ -61,6 +61,7 @@ namespace ShortcutHelper
                     ReplaceDesktop = false;
                     break;
             }
+            Console.WriteLine("\n Leave blank if you don't want to add shortcuts");
             Console.Write("\n Where would you like to write (additonal) shortcuts? Write the full path to the folder, seperate folder paths with a comma (,): ");
             string feed = Console.ReadLine();
             if (feed != null)
@@ -160,10 +161,13 @@ namespace ShortcutHelper
         {
             string batchpath = Path.Combine(FolderExe, "SHORTCUT.bat");
             CreateBatch(FLStudioPaths, batchpath);
-                if (ReplaceDesktop)
-                {
+            if (ReplaceDesktop)
+            {
                 CreateShortcut(string.Format("FL Studio {0}", VersionNumber), Environment.GetFolderPath(Environment.SpecialFolder.Desktop), batchpath, IconPath());
-                }
+                CreateShortcut(string.Format("FL Studio {0}", VersionNumber), Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.Programs), "Image-Line"), batchpath, IconPath());
+                CreateShortcut(string.Format("FL Studio {0}", VersionNumber), Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), "Microsoft\\Windows\\Start Menu\\Programs\\Image-Line"), batchpath, IconPath());
+
+            }
                 if (WriteShortcuts[0] != "")
                 {
                     foreach (string p in WriteShortcuts)
