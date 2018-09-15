@@ -191,7 +191,7 @@ namespace ShortcutHelper
         }
         public static void CreateBatch(string pathToFL, string outputPath)
         {
-            string[] lines = new string[] { "@echo off", "TITLE FL Studio Laucher" , "ECHO Lauching FL Studio", string.Empty, "REM Change this if FL Studio was installed elsewhere", @"start """" " + string.Format(@"""{0}""", pathToFL), string.Empty, "ECHO FL Studio launched", "ECHO.", "ECHO Cancel if RPC shouldn't be enabled", "TIMEOUT /T 10 /NOBREAK", string.Format("start /min {0}", Path.Combine(FolderExe, "rpc-win32.exe")) };
+            string[] lines = new string[] { "@echo off", "TITLE FL Studio Laucher" , "ECHO Lauching FL Studio", string.Empty, "REM Change this if FL Studio was installed elsewhere", @"start """" " + string.Format(@"""{0}""", pathToFL), string.Empty, "ECHO FL Studio launched", "ECHO.", "ECHO Cancel if RPC shouldn't be enabled", "TIMEOUT /T 10 /NOBREAK", string.Format("start /min {0}", Path.Combine(FolderExe, "FLRPC_GUI.exe")) };
             System.IO.File.WriteAllLines(outputPath, lines);
         }
     }
