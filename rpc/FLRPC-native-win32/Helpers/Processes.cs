@@ -7,10 +7,10 @@ namespace FLRPC.Helpers
 {
     class Processes
     {
-        public static string GetMainWindowTitleByName(string query)
+        public static Process GetMainWindowTitleByName(string query)
         {
 
-            string title = null;
+            Process title = null;
             Process[] p = Process.GetProcesses();
             string Title = string.Empty;
             for (var i = 0; i < p.Length; i++)
@@ -18,10 +18,29 @@ namespace FLRPC.Helpers
                 Title = p[i].MainWindowTitle;
 
                 if (Title.Contains(query))
-                    return Title;
+                    return p[i];
                 
             }
             return title;
+        }
+
+        /// <summary>
+        /// Finds the Main Window Tilte by searching the corrosponding exe
+        /// </summary>
+        /// <param name="exeName">Name of the exe</param>
+        /// <returns>MainWindowTitle</returns>
+        public static string GetMainWindowsTilteByProcessName(string exeName)
+        {
+            Process[] AP = Process.GetProcessesByName(exeName);
+
+            //does nothing, for debug
+            string hold = null;
+            // Return first one. Since the end-user probably only runs one instance of FL.exe/FL64.exe. RPC can also detect only one version.
+            if(AP.Length < 1)
+            {
+                return null;
+            }
+            return AP[0].MainWindowTitle;
         }
     }
 }

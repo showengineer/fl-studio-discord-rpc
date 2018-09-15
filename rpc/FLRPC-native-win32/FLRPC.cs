@@ -4,6 +4,7 @@ using DiscordRPC;
 using DiscordRPC.Message;
 using DiscordRPC.Logging;
 using System.IO;
+using System.Diagnostics;
 using FLRPC.Helpers;
 namespace FLRPC
 {
@@ -82,7 +83,7 @@ namespace FLRPC
                 FLInfo InitInfo = GetFLInfo();
 
                 // Try to read any keys if available
-                if (Console.KeyAvailable)
+                if (Console.In.Peek() != -1)
                 {
                     switch (Console.ReadKey(true).Key)
                     {
@@ -123,9 +124,18 @@ namespace FLRPC
                     continue;
 
                 //Check if FL Studio is active
-                if (InitInfo.appName == null && InitInfo.projectName == null)
+                if (InitInfo.FLProcess == null)
                 {
                     throw new Exceptions.ProcessNotPresentException("FL Studio doens't seem to be active, start FL Studio first!");
+                }
+
+                // For some stupid reason if(InitInfo.FLProcess.ProcessName != "FL64" || InitInfo.FLProcess.ProcessName != "FL") doesn't work... so we do it the inefficient way
+                if (InitInfo.FLProcess.ProcessName != "FL64")
+                {
+                    if(InitInfo.FLProcess.ProcessName != "FL")
+                    {
+                        throw new Exceptions.ProcessNotPresentException("FL Studio doens't seem to be active, start FL Studio first!");
+                    }
                 }
 
                 //Fill State and details
@@ -213,12 +223,28 @@ namespace FLRPC
         {
             FLInfo i = new FLInfo();
             //Get title
-            string fullTitle = Processes.GetMainWindowTitleByName(@"FL Studio");
-
+            Process pr = Processes.GetMainWindowTitleByName(@"FL Studio");
+            if(pr != null)
+            {
+                i.FLProcess = pr;
+            }
+            string fullTitle;
+            if (Process.GetProcessesByName("FL").Length >= 1)
+            {
+                fullTitle = Processes.GetMainWindowsTilteByProcessName("FL");
+            }
+            else if(Process.GetProcessesByName("FL64").Length >= 1)
+            {
+                fullTitle = Processes.GetMainWindowsTilteByProcessName("FL64");
+            }
+            else
+            {
+                fullTitle = null;
+            }
             // Check if project is new/unsaved
                 //if yes, return null
                 //if not, return name
-            if(fullTitle == null)
+            if(pr == null)
             {
                 if(tryCount > 0)
                 {
@@ -226,6 +252,7 @@ namespace FLRPC
                     Thread.Sleep(1000);
                     GetFLInfo();
                 }
+                i.FLProcess = null;
                 i.projectName = null;
                 i.appName = null;
             }
@@ -247,6 +274,7 @@ namespace FLRPC
         }
         public struct FLInfo
         {
+            public System.Diagnostics.Process FLProcess { get; set; }
             public string appName { get; set; }
             public string projectName { get; set; }
         }
