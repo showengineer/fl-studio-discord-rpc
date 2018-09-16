@@ -40,7 +40,7 @@ namespace FLRPC
             settings = ReadSettings();
             string ClientID = settings.ClientID;
             int DPipe = settings.Pipe;
-            using(client = new DiscordRpcClient(ClientID, false, DPipe))
+            using (client = new DiscordRpcClient(ClientID, false, DPipe))
             {
                 //Set log levels
                 logLevel = settings.logLevel;
@@ -115,28 +115,13 @@ namespace FLRPC
 
                 if (client != null)
                     client.Invoke();
-                
+
 
                 //Skip update if nothing changes
                 if (InitInfo.appName == rp.Details && InitInfo.projectName == rp.State && Csecret == Psecret)
                     continue;
                 if (InitInfo.projectName == null && rp.State == settings.NoNameMessage && Csecret == Psecret)
                     continue;
-
-                //Check if FL Studio is active
-                if (InitInfo.FLProcess == null)
-                {
-                    throw new Exceptions.ProcessNotPresentException("FL Studio doens't seem to be active, start FL Studio first!");
-                }
-
-                // For some stupid reason if(InitInfo.FLProcess.ProcessName != "FL64" || InitInfo.FLProcess.ProcessName != "FL") doesn't work... so we do it the inefficient way
-                if (InitInfo.FLProcess.ProcessName != "FL64")
-                {
-                    if(InitInfo.FLProcess.ProcessName != "FL")
-                    {
-                        throw new Exceptions.ProcessNotPresentException("FL Studio doens't seem to be active, start FL Studio first!");
-                    }
-                }
 
                 //Fill State and details
                 if (InitInfo.projectName == null)
@@ -158,8 +143,8 @@ namespace FLRPC
                 Psecret = Csecret;
                 client.SetPresence(rp);
                 Thread.Sleep(settings.RefeshInterval);
-                
-                
+
+
             }
         }
         public static void Stop()
@@ -223,17 +208,12 @@ namespace FLRPC
         {
             FLInfo i = new FLInfo();
             //Get title
-            Process pr = Processes.GetMainWindowTitleByName(@"FL Studio");
-            if(pr != null)
-            {
-                i.FLProcess = pr;
-            }
             string fullTitle;
             if (Process.GetProcessesByName("FL").Length >= 1)
             {
                 fullTitle = Processes.GetMainWindowsTilteByProcessName("FL");
             }
-            else if(Process.GetProcessesByName("FL64").Length >= 1)
+            else if (Process.GetProcessesByName("FL64").Length >= 1)
             {
                 fullTitle = Processes.GetMainWindowsTilteByProcessName("FL64");
             }
@@ -244,19 +224,7 @@ namespace FLRPC
             // Check if project is new/unsaved
                 //if yes, return null
                 //if not, return name
-            if(pr == null)
-            {
-                if(tryCount > 0)
-                {
-                    tryCount--;
-                    Thread.Sleep(1000);
-                    GetFLInfo();
-                }
-                i.FLProcess = null;
-                i.projectName = null;
-                i.appName = null;
-            }
-            else if (!fullTitle.Contains("-"))
+            if (!fullTitle.Contains("-"))
             {
                 i.projectName = null;
                 i.appName = fullTitle;
@@ -274,7 +242,6 @@ namespace FLRPC
         }
         public struct FLInfo
         {
-            public System.Diagnostics.Process FLProcess { get; set; }
             public string appName { get; set; }
             public string projectName { get; set; }
         }
