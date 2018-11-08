@@ -37,7 +37,7 @@ namespace ShortcutHelper
         static void PrintIntro()
         {
             Console.WriteLine("This program will create a shortcut that will launch both FL Studio and FL-RPC for Discord");
-            Console.WriteLine("Written by HugoPilot (MusicalProgrammer) - Licensed under GNU GPL v3");
+            Console.WriteLine("Written by HugoPilot (C0der) - Licensed under GNU GPL v3");
             Console.WriteLine("Check out my other projects at https://github.com/hugopilot!");
             Console.WriteLine("------------------------------------------------------------------------------------------");
             Console.WriteLine("\n");
