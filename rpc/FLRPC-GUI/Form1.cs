@@ -26,7 +26,7 @@ namespace FLRPC_GUI
         private void button2_Click(object sender, EventArgs e)
         {
             textBox1.AppendText("Stopping thread... \n");
-            FL_RPC.Stop();
+            FL_RPC.StopAndExit();
             Environment.Exit(0);
         }
 
@@ -44,6 +44,12 @@ namespace FLRPC_GUI
                 textBox1.AppendText("Secret mode is on \n");
             }
 
+        }
+
+        private void settings_button_Click(object sender, EventArgs e)
+        {
+            settings f = new settings();
+            f.Show();
         }
     }
 }

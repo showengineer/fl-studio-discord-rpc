@@ -4,6 +4,7 @@ using DiscordRPC;
 using DiscordRPC.Message;
 using DiscordRPC.Logging;
 using System.IO;
+using System.Xml.Linq;
 using System.Diagnostics;
 using FLRPC.Helpers;
 namespace FLRPC
@@ -61,7 +62,6 @@ namespace FLRPC
                 {
                     Start = DateTime.UtcNow
                 };
-
                 //'link' rp with client
                 client.SetPresence(rp);
 
@@ -76,7 +76,7 @@ namespace FLRPC
         {
             Active = true;
             // loop
-
+            Csecret = settings.Secret;
             while (client != null && Active)
             {
                 // Get info
@@ -106,7 +106,7 @@ namespace FLRPC
 
                             break;
                         case ConsoleKey.Q:
-                            Stop();
+                            StopAndExit();
                             break;
 
                     }
@@ -135,7 +135,6 @@ namespace FLRPC
                     rp.Details = InitInfo.appName;
                     rp.State = InitInfo.projectName;
                 }
-                settings.Secret = Csecret;
                 if (Csecret)
                 {
                     rp.State = settings.SecretMessage;
@@ -149,19 +148,21 @@ namespace FLRPC
         }
         public static void Stop()
         {
+            client.Dispose();
+            Console.WriteLine("Services stopped!");
+        }
+        public static void StopAndExit()
+        {
             // Proper disposal of the thread
             client.Dispose();
             Console.WriteLine("Services stopped, terminating...");
-
-            // Make it readable
-            Thread.Sleep(2000);
 
             // Properly exit
             Environment.Exit(0);
         }
         #endregion
         #region Private methods
-        private static XmlSettings ReadSettings()
+        public static XmlSettings ReadSettings()
         {
             string path = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "settings.xml");
             if (!File.Exists(path))
@@ -177,6 +178,7 @@ namespace FLRPC
             string SecretMessage = XMLParser.FindByTag("SecretMessage", d)[0];
             string NoNameMessage = XMLParser.FindByTag("NoNameMessage", d)[0];
             string interval = XMLParser.FindByTag("RefreshInterval", d)[0];
+            string accWarn = XMLParser.FindByTag("WarningAccepted", d)[0];
 
             // Convert, store and return
             XmlSettings setting = new XmlSettings();
@@ -186,6 +188,7 @@ namespace FLRPC
             setting.SecretMessage = SecretMessage;
             setting.NoNameMessage = NoNameMessage;
             setting.RefeshInterval = Convert.ToInt32(interval);
+            setting.AcceptedWarning = Convert.ToBoolean(accWarn);
             switch (Convert.ToInt32(DebugLevel))
             {
                 case 0:
@@ -202,6 +205,19 @@ namespace FLRPC
                     break;
             }
             return setting;
+        }
+        public static void SaveToXml(XmlSettings settings)
+        {
+            new XDocument(
+                new XElement("config",
+                    new XElement("AppConfig",
+                        new XComment(" DO NOT CHANGE THESE SETTINGS UNLESS YOU KNOW WHAT YOU ARE DOING! "), new XElement("ClientID", settings.ClientID), new XElement("Pipe", settings.Pipe), new XElement("WarningAccepted", settings.AcceptedWarning.ToString())),
+                    new XElement("UserConfig",
+                        new XComment("These are the settings that you can change without bricking the app (most of the time)"), new XElement("SecretProject", settings.Secret.ToString()), new XComment("Put your message here for secret mode"), new XElement("SecretMessage", settings.SecretMessage), 
+                        new XComment("Put your message here in the case you are just starting out"), new XElement("NoNameMessage", settings.NoNameMessage), new XComment("Debug levels:\n 0: Everything(errors, warnings, info)\n 1: Warnings and errors only\n 2: Errors only\n 3: Nothing!"), new XElement("DebugLevel", 
+                        (int)settings.logLevel), new XComment("Interval is in miliseconds"), new XElement("RefreshInterval", settings.RefeshInterval)))
+
+                ).Save(Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "settings.xml"));
         }
         public static int tryCount = 3;
         public static FLInfo GetFLInfo()

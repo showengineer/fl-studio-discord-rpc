@@ -24,7 +24,7 @@ namespace rpc_win32
                 Console.WriteLine("\n \nERROR: " + e.Message);
                 Console.WriteLine("INFO: Exception Name: " + e.GetType());
                 Console.WriteLine("\n");
-                FL_RPC.Stop();
+                FL_RPC.StopAndExit();
                 Environment.Exit(-1);
             }
         }

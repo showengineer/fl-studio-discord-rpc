@@ -56,5 +56,6 @@ namespace FLRPC.Helpers
         public string SecretMessage { get; set; }
         public string NoNameMessage { get; set; }
         public int RefeshInterval { get; set; }
+        public bool AcceptedWarning { get; set; }
     }
 }
