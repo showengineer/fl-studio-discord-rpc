@@ -260,3 +260,6 @@ paket-files/
 __pycache__/
 *.pyc
 *.zip
+
+# Those damn executables (WHY ISN'T THIS IN HERE BY DEFAULT???)
+*.exe
