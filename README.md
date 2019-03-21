@@ -8,7 +8,7 @@ Preview:
 # How to install
 **Easy Install:**
 
-Head over to the [releases](https://github.com/hugopilot/fl-studio-discord-rpc) page and download setup of the latest release (commonly named RPCSetup.exe).
+Head over to the [releases](https://github.com/hugopilot/fl-studio-discord-rpc/releases) page and download setup of the latest release (commonly named RPCSetup.exe).
 
 Run the setup, let it install the client and run ShortcutHelper.exe. Follow the instructions there and you should be good to go!
 
